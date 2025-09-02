@@ -26,6 +26,6 @@ COPY . .
 
 RUN mkdir -p ./content
 
-EXPOSE 7860
+EXPOSE ${PORT:-7860}
 
 CMD ["python", "app.py"]
