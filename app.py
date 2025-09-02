@@ -36,13 +36,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-@app.get("/")
-async def root():
-    return {
-        "message": "Multimodal RAG API esta funcionando",
-        "status": "active",
-        "version": "1.0.0"
-    }
 @app.get("/status", response_model=StatusResponse)
 async def get_status():
     global system_initialized, current_pdf_path
@@ -203,78 +196,103 @@ def create_interface():
         title="RAG Multimodal",
         theme=gr.themes.Soft(),
         css="""
- body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; }
- .container { max-width: 1400px; margin: auto; padding: 20px; }
- .gr-box { box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 12px; border: none; background-color: #ffffff; padding: 20px; }
- h1, h3 { color: #333333; }
- .status-box { padding: 12px 20px; margin: 10px 0; border-radius: 8px; font-weight: bold; border-left: 5px solid; }
- .status-ready { background-color: #d4edda; border-left-color: #28a745; color: #155724; }
- .status-initializing { background-color: #cce5ff; border-left-color: #007bff; color: #004085; }
- .status-error { background-color: #f8d7da; border-left-color: #dc3545; color: #721c24; }
- .status-not-initialized { background-color: #fff3cd; border-left-color: #ffc107; color: #856404; }
- .chat-container { height: 400px; overflow-y: auto; background-color: #f9f9f9; border-radius: 8px; border: 1px solid #e0e0e0; }
- .gr-button.primary { background-color: #6c5ce7; color: white; border: none; border-radius: 8px; }
- .gr-button.secondary { background-color: #e9ecef; color: #495057; border: none; border-radius: 8px; }
- .gr-button.success { background-color: #28a745; color: white; border: none; border-radius: 8px; }
- .upload-section { background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
- .image-description { font-style: italic; color: #666; margin-top: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 5px; }
- """
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; }
+        .container { max-width: 1400px; margin: auto; padding: 20px; }
+        .gr-box { box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 12px; border: none; background-color: #ffffff; padding: 20px; }
+        h1, h3 { color: #333333; }
+        .status-box { padding: 12px 20px; margin: 10px 0; border-radius: 8px; font-weight: bold; border-left: 5px solid; }
+        .status-ready { background-color: #d4edda; border-left-color: #28a745; color: #155724; }
+        .status-initializing { background-color: #cce5ff; border-left-color: #007bff; color: #004085; }
+        .status-error { background-color: #f8d7da; border-left-color: #dc3545; color: #721c24; }
+        .status-not-initialized { background-color: #fff3cd; border-left-color: #ffc107; color: #856404; }
+        .chat-container { height: 400px; overflow-y: auto; background-color: #f9f9f9; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .gr-button.primary { background-color: #6c5ce7; color: white; border: none; border-radius: 8px; }
+        .gr-button.secondary { background-color: #e9ecef; color: #495057; border: none; border-radius: 8px; }
+        .gr-button.success { background-color: #28a745; color: white; border: none; border-radius: 8px; }
+        .upload-section { background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
+        .image-description { font-style: italic; color: #666; margin-top: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 5px; }
+        """
     ) as demo:
         with gr.Row():
             with gr.Column(scale=1):
-                gr.Markdown("# RAG Multimodal")
-                gr.Markdown("### Estado del sistema")
-                status_html = gr.HTML(
-                    value="""<div class=\"status-box status-not-initialized\">Sistema no iniciado. Presiona 'Inicializar Sistema' para comenzar.</div>"""
-                )
-                initialize_btn = gr.Button("Inicializar Sistema", variant="primary")
-                gr.Markdown("### Cambiar documento")
-                pdf_upload = gr.File(
-                    label="Seleccionar nuevo archivo PDF",
-                    file_types=[".pdf"],
-                    file_count="single"
-                )
-                upload_btn = gr.Button("Procesar Nuevo PDF", variant="secondary")
-                upload_output = gr.Textbox(
-                    label="Estado de Procesamiento",
-                    interactive=False,
-                    lines=3,
-                    visible=False
-                )
-                gr.Markdown("### Preguntas de ejemplo")
-                example_1 = gr.Button("Processing Flow y Human-in-the-loop", variant="secondary")
-                example_2 = gr.Button("Fecha de nacimiento del carnet", variant="secondary")
-                example_3 = gr.Button("Arquitectura del sistema", variant="secondary")
-            with gr.Column(scale=2):
-                gr.Markdown("### Chat")
-                chatbot = gr.Chatbot(
-                    label="Conversacion",
-                    height=400,
-                    placeholder="Presiona 'Iniciar Sistema' para comenzar"
-                )
-                with gr.Row():
-                    question_input = gr.Textbox(
-                        label="Tu pregunta",
-                        lines=2,
-                        scale=4,
-                        interactive=False
+                with gr.Column(scale=2, elem_classes="gr-box"):
+                    gr.Markdown(
+                """
+                # RAF Multimodal
+                """
                     )
-                    ask_btn = gr.Button("Enviar", variant="primary", scale=1, interactive=False)
-                clear_btn = gr.Button("Limpiar chat", variant="secondary")
-                gr.Markdown("### Imagen")
-                selected_image = gr.Image(
-                    label="Imagen",
-                    show_label=False,
-                    type="pil",
-                    interactive=False,
-                    height=300
-                )
-                image_description = gr.Textbox(
-                    label="Descripcion de la Imagen",
-                    interactive=False,
-                    lines=2,
-                    placeholder="Aqui aparecera la descripcion de la imagen seleccionada..."
-                )
+                with gr.Column(elem_classes="gr-box"):
+                    gr.Markdown("### Estado del sistema")
+                    status_html = gr.HTML(
+                        value="""<div class="status-box status-not-initialized">Sistema no iniciado. Presiona 'Iniciar Sistema' para comenzar.</div>"""
+                    )
+                    initialize_btn = gr.Button("Inicia Sistema", variant="primary")
+                with gr.Column(elem_classes="gr-box"):
+                    gr.Markdown("### Cambiar documento")
+                    with gr.Column(elem_classes="upload-section"):
+                        pdf_upload = gr.File(
+                            label="Seleccionar nuevo archivo PDF",
+                            file_types=[".pdf"],
+                            file_count="single"
+                        )
+                        upload_btn = gr.Button("📤 Procesar Nuevo PDF", variant="secondary")
+                        upload_output = gr.Textbox(
+                            label="Estado de Procesamiento",
+                            interactive=False,
+                            lines=3,
+                            visible=False
+                        )
+                with gr.Column(elem_classes="gr-box"):
+                    gr.Markdown("### Preguntas de ejemplo")
+                    example_1 = gr.Button(
+                        "Processing Flow y Human-in-the-loop",
+                        variant="secondary"
+                    )
+                    example_2 = gr.Button(
+                        "Fecha de nacimiento del carnet",
+                        variant="secondary"
+                    )
+                    example_3 = gr.Button(
+                        "Arquitectura del sistema",
+                        variant="secondary"
+                    )
+            with gr.Column(scale=2):
+                with gr.Column(elem_classes="gr-box"):
+                    gr.Markdown("### Chat")
+                    chatbot = gr.Chatbot(
+                        label="Conversación",
+                        height=400,
+                        elem_classes=["chat-container"],
+                        placeholder="Presiona 'Iniciar Sistema' para comenzar"
+                    )
+                    with gr.Row():
+                        question_input = gr.Textbox(
+                            label="Tu pregunta",
+                            lines=2,
+                            scale=4,
+                            interactive=False
+                        )
+                        ask_btn = gr.Button("📤 Enviar", variant="primary", scale=1, interactive=False)
+                    clear_btn = gr.Button("🗑️ Limpiar chat", variant="secondary")
+                
+                with gr.Column(elem_classes="gr-box"):
+                    gr.Markdown("### Imagen")
+                    selected_image = gr.Image(
+                        label="Imagen",
+                        show_label=False,
+                        type="pil",
+                        interactive=False,
+                        height=300,
+                        width="100%"
+                    )
+                    image_description = gr.Textbox(
+                        label="Descripción de la Imagen",
+                        interactive=False,
+                        lines=2,
+                        placeholder="Aqui aparecera la descripcion de la imagen seleccionada...",
+                        elem_classes=["image-description"]
+                    )
+
         def handle_initialization():
             result, success = initialize_system_frontend()
             status_html_value = f"""<div class=\"status-box status-ready\">Sistema listo para consultas</div>""" if success else f"""<div class=\"status-box status-error\">Error al iniciar el sistema</div>"""
